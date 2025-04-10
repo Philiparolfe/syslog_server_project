@@ -1,0 +1,10 @@
+devices:
+  R1:
+    device_type: cisco_ios
+    host: 192.168.100.2
+    password: comp3099
+    port: 22
+    secret: comp3099
+    username: admin
+syslog_server:
+  ip: 192.168.100.11

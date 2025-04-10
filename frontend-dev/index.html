@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <h1>Syslog Data</h1>
+
+    <select id="severityFilter">
+      <option value="">All Severities</option>
+      <option value="0">0 - Emergency</option>
+      <option value="1">1 - Alert</option>
+      <option value="2">2 - Critical</option>
+      <option value="3">3 - Error</option>
+      <option value="4">4 - Warning</option>
+      <option value="5">5 - Notice</option>
+      <option value="6">6 - Informational</option>
+      <option value="7">7 - Debug</option>
+    </select>
+
+    <div id="wrapper"></div>
+    <script type="module" src="/src/main.js"></script>
+    <script>
+let logID
+let apiAddress = "http://192.168.100.11:8000/"
+function deleteLog(logID){
+  fetch(`${apiAddress}logs/${logID}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      // Add any additional headers you may need (e.g., authentication token)
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(data => {
+          throw new Error(data.detail || 'Failed to delete log');
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Log deleted successfully:', data.message);
+    })
+    .catch(error => {
+      console.error('Error:', error.message);
+    });
+}
+      </script>
+  </body>
+</html>
+

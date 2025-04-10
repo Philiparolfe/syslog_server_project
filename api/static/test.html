@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
+    <title>Syslog Viewer</title>
+
+</head>
+<body>
+    
+    <h1>Syslog Data</h1>
+    <div id="wrapper"></div>
+    <!--<table id="logsTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">ID</th>
+                <th>Timestamp</th>
+                <th>Source IP</th>
+                <th>Severity</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+             Logs will be inserted here dynamically 
+        </tbody> -->
+    </table>
+
+<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+<script>
+    //Testing:
+    async function getData() {
+    const url = "http://192.168.100.11:8000/logs";
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Fetched Logs:", data);
+
+        // Update the table with logs
+        // populateTable(data.logs);
+        return data.logs
+    } catch (error) {
+        console.error("Error fetching logs:", error.message);
+    }
+}
+
+new gridjs.Grid({
+    columns: ['ID', 'Time Stamp', 'Source IP', 'Severity', 'Log Message'],
+  server: {
+    url: 'http://192.168.100.11:8000/logs',
+    then: data => data.logs.map(log => [log.id, log.timestamp, log.source_ip, log.severity, log.log_message])
+  } 
+}).render(document.getElementById("wrapper"));
+
+</script>
+<script src="script.js"></script>
+</body>
+</html>
