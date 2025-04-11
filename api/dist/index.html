@@ -9,7 +9,7 @@
     <link rel="stylesheet" crossorigin href="/dist/assets/index-CZDSg7UC.css">
   </head>
   <body>
-    <h1>Syslog Data</h1>
+    <h1>should update on every save</h1>
 
     <select id="severityFilter">
       <option value="">All Severities</option>
@@ -26,7 +26,7 @@
     <div id="wrapper"></div>
     <script>
 let logID
-let apiAddress = "/"
+let apiAddress = "http://localhost:8000/"
 function deleteLog(logID){
   fetch(`${apiAddress}logs/${logID}`, {
     method: 'DELETE',
