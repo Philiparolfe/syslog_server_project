@@ -25,7 +25,7 @@
     <script type="module" src="/src/main.js"></script>
     <script>
 let logID
-let apiAddress = "/"
+let apiAddress = "http://localhost:8000/"
 function deleteLog(logID){
   fetch(`${apiAddress}logs/${logID}`, {
     method: 'DELETE',

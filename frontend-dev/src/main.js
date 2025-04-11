@@ -3,8 +3,8 @@ import "gridjs/dist/theme/mermaid.css";
 
 let gridInstance = null;
 
-//let apiAddress = "http://localhost:8000/"; //<-- for development
-let apiAddress = "/"; //<--- for production
+let apiAddress = "http://localhost:8000/"; //<-- for development
+//let apiAddress = "/"; //<--- for production
 let wsAddress; //"ws://192.168.100.11:8000/ws";
 
 
