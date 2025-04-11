@@ -4,7 +4,7 @@
 cleanup() {
     echo "Stopping services..."
     # Send SIGINT to both processes to gracefully stop them
-    #kill -INT $syslog_pid
+    kill -INT $syslog_pid
     kill -INT $fastapi_pid
     wait $syslog_pid
     wait $fastapi_pid
@@ -14,6 +14,10 @@ cleanup() {
 
 # Trap SIGINT (Ctrl+C) to ensure cleanup is called when exiting
 trap cleanup SIGINT
+
+sudo apt install python3-venv -y
+sudo apt install python3-pip -y
+
 
 # Check if virtual environment exists, if not creates one
 if [ ! -d ".venv/" ]; then
