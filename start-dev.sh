@@ -66,13 +66,12 @@ python3 auto.py
 
 cd frontend-dev/
 npm install
-wait 20
 npm run dev &
 dev_pid=$!
-
+wait $dev_pid
 
 
 # Wait for both processes to finish (in this case, they should keep running)
 wait $syslog_pid
 wait $fastapi_pid
-wait $dev_pid
+

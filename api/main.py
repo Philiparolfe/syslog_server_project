@@ -46,6 +46,27 @@ class MessageResponse(BaseModel):
 class ConfigResponse(BaseModel):
     websocket_ip: str
 
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            try:
+                await connection.send_text(message)
+            except Exception as e:
+                logger.warning(f"Failed to send to client: {e}")
+
+manager = ConnectionManager()
+
+
 status_flag = False  # Change this to True or False to control the message
 
 # Root endpoint
@@ -79,22 +100,17 @@ async def set_status_true():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    global status_flag
-    await websocket.accept()
+    global status_flag  
+    await manager.connect(websocket)
     try:
         while True:
-            
             if status_flag:
-                message = "Status is True"
-                await websocket.send_text(message)
-                if status_flag == True:
-                    status_flag = False  
-            else:
-                message = "Status is False"
-                #await websocket.send_text(message)
-            await asyncio.sleep(4)  # Send update every 2 seconds
+                await manager.broadcast("Status is True")
+                status_flag = False
+            await asyncio.sleep(4)
     except WebSocketDisconnect:
-        print("Client disconnected")
+        manager.disconnect(websocket)
+        logger.info("Client disconnected")
 
 # Fetch all logs
 @app.get("/logs", response_model=LogsResponse)
