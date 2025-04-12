@@ -95,7 +95,7 @@ def insert_syslogIP_to_DB():
     # Load IP from config.yaml
     with open(config_file_path, "r") as file:
         devices_data = yaml.safe_load(file)
-    syslog_server_ip = devices_data['syslog_server']['ip']
+    syslog_server_ip = devices_data['syslog_server']['ws']
 
     try:
         with sqlite3.connect(db_file) as conn:

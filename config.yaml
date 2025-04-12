@@ -2,9 +2,10 @@ devices:
   R1:
     device_type: cisco_ios
     host: 192.168.100.2
-    password: comp3099
+    password: # replace with your password
     port: 22
-    secret: comp3099
+    secret: # replace with your password
     username: admin
 syslog_server:
-  ip: 192.168.100.11
+  ip: 192.168.100.11 # replace with your syslog server ip
+  ws: localhost # replace with your syslog server ip
