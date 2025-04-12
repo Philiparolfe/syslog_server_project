@@ -1,56 +1,98 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-    <script type="module" crossorigin src="/dist/assets/index-DUuW7f2w.js"></script>
-    <link rel="stylesheet" crossorigin href="/dist/assets/index-CZDSg7UC.css">
-  </head>
-  <body>
-    <h1>should update on every save</h1>
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-900 text-white">
 
-    <select id="severityFilter">
-      <option value="">All Severities</option>
-      <option value="0">0 - Emergency</option>
-      <option value="1">1 - Alert</option>
-      <option value="2">2 - Critical</option>
-      <option value="3">3 - Error</option>
-      <option value="4">4 - Warning</option>
-      <option value="5">5 - Notice</option>
-      <option value="6">6 - Informational</option>
-      <option value="7">7 - Debug</option>
-    </select>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Syslog Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <script type="module" crossorigin src="/dist/assets/index-DUuW7f2w.js"></script>
+  <link rel="stylesheet" crossorigin href="/dist/assets/index-CZDSg7UC.css">
+</head>
 
-    <div id="wrapper"></div>
-    <script>
-let logID
-let apiAddress = "http://localhost:8000/"
-function deleteLog(logID){
-  fetch(`${apiAddress}logs/${logID}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      // Add any additional headers you may need (e.g., authentication token)
-    },
-  })
-    .then(response => {
-      if (!response.ok) {
-        return response.json().then(data => {
-          throw new Error(data.detail || 'Failed to delete log');
+<body class="min-h-screen p-6">
+  <div class="max-w-6xl mx-auto">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold mb-4">Syslog Data</h1>
+      <div class="flex flex-wrap gap-4 mb-4">
+        <select id="severityFilter" class="bg-gray-800 border border-gray-700 text-white p-2 rounded">
+          <option value="">All Severities</option>
+          <option value="0">0 - Emergency</option>
+          <option value="1">1 - Alert</option>
+          <option value="2">2 - Critical</option>
+          <option value="3">3 - Error</option>
+          <option value="4">4 - Warning</option>
+          <option value="5">5 - Notice</option>
+          <option value="6">6 - Informational</option>
+          <option value="7">7 - Debug</option>
+        </select>
+
+        <button onclick="clearLogs()"
+          class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded shadow">
+          Clear Logs
+        </button>
+      </div>
+    </header>
+
+    <section id="wrapper" class="bg-gray-800 rounded-xl shadow p-4 overflow-auto max-h-[70vh]">
+      <!-- Logs will be injected here by /src/main.js -->
+    </section>
+  </div>
+
+  <script>
+    let apiAddress = "/"
+    //let apiAddress = "/" /for production using npm run dev
+    function deleteLog(logID) {
+      fetch(`${apiAddress}logs/${logID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(data => {
+              throw new Error(data.detail || 'Failed to delete log');
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Log deleted successfully:', data.message);
+        })
+        .catch(error => {
+          console.error('Error:', error.message);
         });
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Log deleted successfully:', data.message);
-    })
-    .catch(error => {
-      console.error('Error:', error.message);
-    });
-}
-      </script>
-  </body>
-</html>
+    }
 
+    async function clearLogs() {
+      const confirmClear = window.confirm("Are you sure you want to clear all logs?");
+      if (!confirmClear) {
+        return; // Exit if user cancels
+      }
+
+      try {
+        const response = await fetch(`${apiAddress}clearlogs`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to clear logs');
+        }
+
+        const data = await response.json();
+        console.log(data.message);
+        alert(data.message);
+      } catch (error) {
+        console.error('Error clearing logs:', error);
+        alert('An error occurred while clearing logs.');
+      }
+    }
+  </script>
+</body>
+
+</html>

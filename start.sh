@@ -45,18 +45,17 @@ fastapi_pid=$!
 cd ..
 
 sleep 3
+echo "______"
 echo "syslog server requires elevated privileges to use port 514. Enter password if required:"
-echo "________________________________________________________________________________________"
+echo "______"
 
 
 cd syslog/
 sudo python3 syslog_server.py &
 syslog_pid=$!
-echo "you have 10s to enter password..."
 
 
-
-sleep 10
+sleep 3
 
 cd ..
 sudo chown -R "$USER:$USER" syslog/

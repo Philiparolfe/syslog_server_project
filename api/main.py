@@ -1,7 +1,9 @@
+from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
@@ -69,10 +71,23 @@ manager = ConnectionManager()
 
 status_flag = False  # Change this to True or False to control the message
 
+def insert_log(timestamp, source_ip, syslog_severity, log_message):
+    """ Insert a log into the database """
+    conn = sqlite3.connect(DB_FILE_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO logs (timestamp, source_ip, syslog_severity, log_message)
+        VALUES (?, ?, ?, ?)
+    ''', (timestamp, source_ip, syslog_severity, log_message))
+    conn.commit()
+    conn.close()
+
+
 # Root endpoint
-@app.get("/", response_model=MessageResponse)
+@app.get("/")
 def read_root():
-    return {"message": "Welcome to the FastAPI syslog service."}
+    #return {"message": "Welcome to the FastAPI syslog service."}
+    return RedirectResponse(url="/dist/index.html")
 
 @app.get("/config/ws-url", response_model=ConfigResponse)
 def get_ws_url():
@@ -107,10 +122,12 @@ async def websocket_endpoint(websocket: WebSocket):
             if status_flag:
                 await manager.broadcast("Status is True")
                 status_flag = False
-            await asyncio.sleep(4)
+            await asyncio.sleep(2)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         logger.info("Client disconnected")
+    except asyncio.CancelledError:
+        print("WebScocket task cancelled!")
 
 # Fetch all logs
 @app.get("/logs", response_model=LogsResponse)
@@ -203,9 +220,15 @@ def delete_log(log_id: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.delete("/clearlogs", response_model=MessageResponse)
-def clear_logs():
+def clear_logs(request: Request):
     global status_flag
-    
+    now = datetime.now()
+    formatted_timestamp = f"{now.strftime('%b %d %H:%M:%S')}.{now.microsecond // 1000:03d}"
+
+    # Get client IP (accounting for proxies if needed)
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    client_ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.client.host
+
     try:
         with sqlite3.connect(DB_FILE_PATH) as conn:
             cursor = conn.cursor()
@@ -214,7 +237,13 @@ def clear_logs():
             cursor.execute("DELETE FROM logs")
             conn.commit()
 
-        logger.info("All logs cleared successfully.")
+        logger.info(f"All logs cleared successfully by {client_ip}.")
+        insert_log(
+            timestamp=formatted_timestamp,
+            source_ip=client_ip,
+            syslog_severity="4",
+            log_message="All logs cleared via web dashboard."
+        )
         status_flag = True
         return MessageResponse(message="All logs cleared successfully.")
 
