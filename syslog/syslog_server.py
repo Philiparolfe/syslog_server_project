@@ -98,7 +98,7 @@ def syslog_server(host='0.0.0.0', port=514):
         timestamp = log_timestamp if log_timestamp else received_timestamp
 
         # Save the parsed log to the database
-        insert_log(timestamp, source_ip, syslog_severity, parsed_message)
+        insert_log(timestamp.replace("*", ""), source_ip, syslog_severity, parsed_message)
         
         print(f"Log received from {source_ip}: {parsed_message}")
         response = requests.post(URL)
