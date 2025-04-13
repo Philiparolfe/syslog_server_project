@@ -5,6 +5,8 @@ import sqlite3
 from datetime import datetime
 import requests
 import yaml
+from alerts import AlertHandler
+
 
 
 # Load IP from config.yaml
@@ -14,7 +16,10 @@ with open(config_file_path, "r") as file:
     syslog_server_ip = devices_data['syslog_server']['ip']
 URL = f"http://{syslog_server_ip}:8000/db_updated" #"http://192.168.100.11:8000/db_updated"  # Adjust if running on a different host/port
 
-
+def send_alert(log):
+    #print(f"[ALERT] Severity {log.severity} from {log.source_ip}: {log.log_message}")
+    #print(f"[SMS] Sent to admin: Log alert from {log.source_ip} with severity {log.severity}")
+    print(f"[EMAIL] Sent to security@company.com: {log}")
 
 def create_db():
     """ Creates a database and log table if it doesn't exist """
@@ -34,6 +39,7 @@ def create_db():
 
 def insert_log(timestamp, source_ip, syslog_severity, log_message):
     """ Insert a log into the database """
+
     conn = sqlite3.connect('syslogs.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -69,6 +75,8 @@ def parse_log(log_message):
 
 def syslog_server(host='0.0.0.0', port=514):
     """ Simple Syslog server to collect logs from network devices """
+    alert_manager = AlertHandler()
+    alert_manager.encrypt_twilio_credentials()
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((host, port))
     
@@ -99,6 +107,17 @@ def syslog_server(host='0.0.0.0', port=514):
 
         # Save the parsed log to the database
         insert_log(timestamp.replace("*", ""), source_ip, syslog_severity, parsed_message)
+
+        
+        if syslog_severity in [0,1,2,3,4,5]:
+            try:
+                send_alert(parsed_message)
+                alert_manager.send_alert(f'''
+                    Syslog Server Message!\n Time: {timestamp.replace("*", "")} | Source: {source_ip} | Severity: {syslog_severity} | Message: {parsed_message}
+                    ''')
+            except Exception as e:
+                print(e)
+                continue
         
         print(f"Log received from {source_ip}: {parsed_message}")
         response = requests.post(URL)

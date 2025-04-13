@@ -15,6 +15,8 @@ cleanup() {
 # Trap SIGINT (Ctrl+C) to ensure cleanup is called when exiting
 trap cleanup SIGINT
 
+sudo apt install python3-twilio
+sudo apt install python3-phonenumbers
 sudo apt install python3-venv -y
 sudo apt install python3-pip -y
 
