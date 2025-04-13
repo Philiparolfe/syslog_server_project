@@ -2,10 +2,14 @@ devices:
   R1:
     device_type: cisco_ios
     host: 192.168.100.2
-    password: 
+    password: null
     port: 22
-    secret: 
+    secret: null
     username: admin
 syslog_server:
   ip: 192.168.100.11
   ws: localhost
+twilio_config:
+  account_sid: gAAAAABn_BpuORcB-0llRccq4jgqHkzXuDchqRiE3ZFjoBvtFy57wPfLVgUi_iD5UJAVCmwEI47xbRQUtsN1AIFDPvp9azESyMVqv5F-8VPSX9dQA24mtz6frvF57D-aZ1t8t28HD0tP
+  auth_token: gAAAAABn_BpuwaS2_V1C6Z9SdTxn8OSc2Pxrx3Zv3FCEs3jLXRtbofkIg3VtyvdIOXDZnZcEp9xCjxmnoyTsgR0sPYd6U2TnOouzpQ-XNvEMsnrQEUJpbHnnEv15WLi43hVcC3nWx7zQ
+  phone_number: gAAAAABn_Bpubt6IWwOlCTcPNbaHOOXZHbzlXpo2lj-sEEjKbR2RKuQtmViXlb5A9OjK1M_oEEisPqBsXOsfmfb346EQj7sNZQ==
