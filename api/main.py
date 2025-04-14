@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Form, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import asyncio
@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
 import logging
 import uvicorn
-
+from user_handler import UserManager
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -250,6 +250,30 @@ def clear_logs(request: Request):
     except sqlite3.Error as e:
         logger.error(f"Database error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.post("/register")
+async def register(
+    admin_user: str = Form(...),
+    admin_password: str = Form(...),
+    user: str = Form(...),
+    password: str = Form(...),
+    email: str = Form(...),
+    phone: str = Form(...)
+):
+    user_manager = UserManager("../syslog/users.db")
+    if user_manager.auth_user(admin_user, admin_password):
+        user_manager.add_user(username=user, password=password, phone=phone, email=email)
+        return {
+            "message": f"User '{user}' registered successfully by admin '{admin_user}'",
+            "user_info": {
+                "username": user,
+                "email": email,
+                "phone": phone
+            }
+        }
+    else:
+        raise HTTPException(status_code=401, detail="Invalid admin credentials")
+
 
 def run():
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
