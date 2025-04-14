@@ -16,8 +16,11 @@ cleanup() {
 
 # Trap SIGINT (Ctrl+C) to ensure cleanup is called when exiting
 trap cleanup SIGINT
-sudo apt install python3-venv -y
-sudo apt install python3-pip -y
+
+sudo apt install python3-twilio python3-phonenumbers python3-venv python3-pip python3-cryptography python3-bcrypt -y
+
+
+
 # Check if virtual environment exists, if not creates one
 if [ ! -d ".venv/" ]; then
     echo "Virtual environment not found. Creating virtual environment..."
@@ -50,11 +53,12 @@ echo "______"
 
 
 cd syslog/
+python3 keygen.py
 sudo python3 syslog_server.py &
 syslog_pid=$!
 
 
-sleep 5
+sleep 3
 
 cd ..
 sudo chown -R "$USER:$USER" syslog/
@@ -78,8 +82,6 @@ npm run dev &
 dev_pid=$!
 wait $dev_pid
 
-
 # Wait for both processes to finish (in this case, they should keep running)
 wait $syslog_pid
 wait $fastapi_pid
-

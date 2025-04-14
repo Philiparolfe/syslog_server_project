@@ -6,6 +6,7 @@ from datetime import datetime
 import requests
 import yaml
 from alerts import AlertHandler
+from user_handler import UserManager
 
 
 
@@ -126,4 +127,6 @@ def syslog_server(host='0.0.0.0', port=514):
         else:
             print("Error:", response.status_code, response.text)
 
+
+    
 syslog_server()

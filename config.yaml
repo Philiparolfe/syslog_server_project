@@ -13,5 +13,5 @@ twilio_config:
   account_sid: gAAAAABn_DkafycOQF9qrrNX_mxFEvC_WDxp0F2u26hu21GqhDW775EZtqLC4vwj_8LWRARv4wvWWvnw8n_NqLzOWZo5HRrOxBe8XxP81ItIZlcmFahAdNJYulKQNCZAvlEdtNBuCTcj
   auth_token: gAAAAABn_Dka2jlJZh9-byf0l6BKD8Fi8TezLrCZllnB2lDas0awqjgdYlbeH1oO79Ln3VJdgb88UfqL0VaPnlap5a0QkHt35A8UDWAs--dtX1rA-5k3D-7PLSun5yXD4ybGw6Mw1tFF
   is_encrypted: true
-  is_on: true
+  is_on: False
   phone_number: gAAAAABn_Dkavg1RrrO_08l1G6Gh9jK--Yit1uFfWwcGtHIp_YNKvcor5BhFGfsjydeJQn9pUSlfKIxkt0QEBoZUUPqG91jJ0g==

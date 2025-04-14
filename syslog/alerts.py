@@ -1,4 +1,5 @@
 # Download the helper library from https://www.twilio.com/docs/python/install
+import os
 from twilio.rest import Client
 import yaml
 from cryptography.fernet import Fernet
@@ -10,6 +11,8 @@ class AlertHandler:
         self.config_file_path = __config_file_path
 
     def encrypt_twilio_credentials(self, key_file_path = "../secret.key", config_file_path = "../config.yaml"):
+        if not os.path.exists(key_file_path):
+            key = Fernet.generate_key()
         # Load encryption key
         with open(key_file_path, "rb") as key_file:
             key = key_file.read()

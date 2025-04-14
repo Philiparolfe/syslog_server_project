@@ -15,10 +15,8 @@ cleanup() {
 # Trap SIGINT (Ctrl+C) to ensure cleanup is called when exiting
 trap cleanup SIGINT
 
-sudo apt install python3-twilio
-sudo apt install python3-phonenumbers
-sudo apt install python3-venv -y
-sudo apt install python3-pip -y
+sudo apt install python3-twilio python3-phonenumbers python3-venv python3-pip python3-cryptography python3-bcrypt -y
+
 
 
 # Check if virtual environment exists, if not creates one
@@ -53,6 +51,7 @@ echo "______"
 
 
 cd syslog/
+python3 keygen.py
 sudo python3 syslog_server.py &
 syslog_pid=$!
 
