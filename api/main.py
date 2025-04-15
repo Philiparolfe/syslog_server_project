@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
-from fastapi import FastAPI, Form, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Form, HTTPException, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import asyncio
@@ -10,6 +10,37 @@ import sqlite3
 import logging
 import uvicorn
 from user_handler import UserManager
+import secrets
+import os
+from itsdangerous import URLSafeSerializer
+
+web_key_path = "web.key"
+# Check if key already exists
+if os.path.exists(web_key_path):
+    print(f"Web key already exists at '{web_key_path}'.")
+    with open(web_key_path, "r") as f:
+        web_key = f.read().strip()
+else:
+    # Generate and save new key
+    web_key = secrets.token_urlsafe(32)
+    with open(web_key_path, "w") as f:
+        f.write(web_key)
+    print(f"New Web key generated and saved to '{web_key_path}'. (for session authentication\n)")
+
+WEB_KEY = web_key 
+COOKIE_NAME = "session"
+serializer = URLSafeSerializer(WEB_KEY)
+
+# Get current user from cookie
+def get_current_user(request: Request):
+    cookie = request.cookies.get(COOKIE_NAME)
+    if not cookie:
+        return None
+    try:
+        data = serializer.loads(cookie)
+        return data.get("username")
+    except Exception:
+        return None
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -85,9 +116,41 @@ def insert_log(timestamp, source_ip, syslog_severity, log_message):
 
 # Root endpoint
 @app.get("/")
-def read_root():
+def read_root(user: str = Depends(get_current_user)):
     #return {"message": "Welcome to the FastAPI syslog service."}
+    if not user:
+        #raise HTTPException(status_code=401, detail="Not logged in")
+        return RedirectResponse(url="/dist/login.html")
     return RedirectResponse(url="/dist/index.html")
+
+@app.post("/login")
+def login(response: Response, username: str = Form(...), password: str = Form(...)):
+    user_manager = UserManager("../syslog/users.db")  
+    if not user_manager.auth_user(username, password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    user_manager.close()
+    
+    # Create signed cookie
+    signed_data = serializer.dumps({"username": username})
+    response = RedirectResponse(url="/protected", status_code=302)
+    response.set_cookie(COOKIE_NAME, signed_data, httponly=True, max_age=3600)
+    return response
+
+@app.get("/logout")
+def logout():
+    response = RedirectResponse(url="/")
+    response.delete_cookie(COOKIE_NAME)
+    return response
+
+@app.get("/is_logged_in", response_model=bool)
+def is_logged_in(user: str = Depends(get_current_user)):
+    return user is not None
+
+@app.get("/protected")
+def protected(user: str = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(status_code=401, detail="Not logged in")
+    return {"message": f"Hello {user}, you are logged in!"}
 
 @app.get("/config/ws-url", response_model=ConfigResponse)
 def get_ws_url():

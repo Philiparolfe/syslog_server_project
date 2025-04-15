@@ -9,7 +9,15 @@
   <link rel="stylesheet" href="src/style.css">
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
 </head>
-
+<script>
+  fetch('/is_logged_in')
+  .then(res => res.json())
+  .then(isLoggedIn => {
+    if (!isLoggedIn) {
+      window.location.href = '/dist/login.html';
+    }
+  });
+</script>
 <body class="min-h-screen p-6 bg-gray-900 text-white">
 <!-- Navigation Bar -->
 <nav class="bg-gray-800 text-white shadow mb-6 rounded-xl">
@@ -18,7 +26,7 @@
     <div class="space-x-6">
       <a href="/dist/index.html" class="hover:text-gray-400">Home</a>
       <a href="/dist/register.html" class="hover:text-gray-400">Register</a>
-      <a id="loginbtn" href="#" class="hover:text-gray-400">Login</a>
+      <a id="loginbtn" href="/logout" class="hover:text-gray-400">Logout</a>
     </div>
   </div>
 </nav>

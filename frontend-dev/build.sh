@@ -30,6 +30,8 @@ echo "find and replace all instances of /assets/ to /dist/assets/"
 sed -i 's#/assets/#/dist/assets/#g' ../api/dist/index.html
 sed -i 's#http://localhost:8000/#/#g' ../api/dist/index.html
 sed -i 's#/assets/#/dist/assets/#g' ../api/dist/register.html
+sed -i 's#/assets/#/dist/assets/#g' ../api/dist/login.html
+
 
 echo "Do you wish to start syslog server? (yes/no)"
 read yn
