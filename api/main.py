@@ -122,7 +122,7 @@ async def websocket_endpoint(websocket: WebSocket):
             if status_flag:
                 await manager.broadcast("Status is True")
                 status_flag = False
-            await asyncio.sleep(2)
+            await asyncio.sleep(3)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         logger.info("Client disconnected")
